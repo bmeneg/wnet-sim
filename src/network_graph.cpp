@@ -23,9 +23,8 @@ void NetworkGraph::add_routes_from_file(string filename)
 	bool vertex_2_found = false;
 
 	while (getline(routes_file, line)) {
-		if (line == "") {
+		if (line == "")
 			continue;
-		}
 
 		split(tokens, line, is_any_of(" "));
 		auto vpair = vertices(graph);
@@ -33,8 +32,7 @@ void NetworkGraph::add_routes_from_file(string filename)
 			if (graph[*it].id == stoi(tokens.at(0))) {
 				vertex_1 = *it;
 				vertex_1_found = true;
-			}
-			else if (graph[*it].id == stoi(tokens.at(1))) {
+			} else if (graph[*it].id == stoi(tokens.at(1))) {
 				vertex_2 = *it;
 				vertex_2_found = true;
 			}
@@ -50,11 +48,11 @@ void NetworkGraph::add_routes_from_file(string filename)
 
 #ifdef DEBUG
 	cout << "vertices found: ";
-    print_vertices(graph, get(&Vertex::id, graph));
-    cout << "edges found: ";
-    print_edges(graph, get(&Vertex::id, graph));
-    cout << "resulting graph:" << endl;
+	print_vertices(graph, get(&Vertex::id, graph));
+	cout << "edges found: ";
+	print_edges(graph, get(&Vertex::id, graph));
+	cout << "resulting graph:" << endl;
 	print_graph(graph, get(&Vertex::id, graph));
-    cout << endl;
+	cout << endl;
 #endif
 }
