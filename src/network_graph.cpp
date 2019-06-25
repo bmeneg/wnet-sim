@@ -4,7 +4,9 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/graph/adjacency_list.hpp>
+#ifdef DEBUG
 #include <boost/graph/graph_utility.hpp>
+#endif
 
 #include "network_graph.hpp"
 
@@ -47,7 +49,12 @@ void NetworkGraph::add_routes_from_file(string filename)
 	}
 
 #ifdef DEBUG
-	cout << "vertices found: " << endl;
+	cout << "vertices found: ";
+    print_vertices(graph, get(&Vertex::id, graph));
+    cout << "edges found: ";
+    print_edges(graph, get(&Vertex::id, graph));
+    cout << "resulting graph:" << endl;
 	print_graph(graph, get(&Vertex::id, graph));
+    cout << endl;
 #endif
 }
