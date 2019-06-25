@@ -1,10 +1,10 @@
 #include <iostream>
-using namespace std;
-
 #include <boost/program_options.hpp>
-namespace po = boost::program_options;
 
 #include "network_graph.hpp"
+
+using namespace std;
+namespace po = boost::program_options;
 
 int main(int argc, char *argv[])
 {
