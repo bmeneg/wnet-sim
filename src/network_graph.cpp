@@ -48,11 +48,22 @@ void NetworkGraph::add_routes_from_file(std::string filename)
 #ifdef DEBUG
 	std::cout << "vertices found: ";
 	print_vertices(graph, get(&Vertex::id, graph));
-	std::cout << "edges found: ";
-	print_edges(graph, get(&Vertex::id, graph));
-	std::cout << "resulting graph:" << std::endl;
-	print_graph(graph, get(&Vertex::id, graph));
-	std::cout << std::endl;
+
+	auto vpair = vertices(graph);
+	for (auto v_it = vpair.first; v_it != vpair.second; v_it++) {
+		std::cout << "edges incident to vertex " << graph[*v_it].id <<
+			" are: ";
+		std::pair<edge_it_t, edge_it_t> epair = out_edges(*v_it, graph);
+		for (auto e_it = epair.first; e_it != epair.second; e_it++) {
+			std::cout << graph[source(*e_it, graph)].id << " ";
+		}
+		std::cout << std::endl;
+	}
+	//std::cout << "edges found: ";
+	//print_edges(graph, get(&Vertex::id, graph));
+	//std::cout << "resulting graph:" << std::endl;
+	//print_graph(graph, get(&Vertex::id, graph));
+	//std::cout << std::endl;
 #endif
 }
 
