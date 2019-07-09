@@ -27,15 +27,17 @@ CONFIG += c++14
 SOURCES += \
         ../core/core.cpp \
         ../core/network_graph.cpp \
+        edge_ui.cpp \
         main.cpp \
         mainwindow.cpp \
-        node_ui.cpp
+        vertex_ui.cpp
 
 HEADERS += \
         ../core/core.hpp \
         ../core/network_graph.hpp \
+        edge_ui.hpp \
         mainwindow.hpp \
-        node_ui.hpp
+        vertex_ui.hpp
 
 LIBS += -lboost_graph \
      -lboost_program_options

@@ -6,9 +6,7 @@
 
 namespace po = boost::program_options;
 
-static NetworkGraph ngraph;
-
-static int handle_po(int argc, char *argv[])
+int Core::handle_po(int argc, char *argv[])
 {
 	/* Command line options handling */
 	std::string app_name(argv[0]);
@@ -63,20 +61,20 @@ static int handle_po(int argc, char *argv[])
 	return 1;
 }
 
-int run_core_gui(std::string filename)
+NetworkGraph * Core::run_gui(std::string filename)
 {
 	ngraph.graph_file(filename);
 	ngraph.add_routes_from_file(ngraph.graph_file());
-	ngraph.calc_routing_graph();
-	return 0;
+	return &ngraph;
 }
 
-int run_core_cli(void)
+int Core::run_cli(void)
 {
 	unsigned long src, dest;
 	route_t route;
 
 	ngraph.add_routes_from_file(ngraph.graph_file());
+	ngraph.graph_edges();
 	ngraph.calc_routing_graph();
 
 	std::cout << "Choose the source node: ";
@@ -96,7 +94,7 @@ int run_core_cli(void)
 	return 0;
 }
 
-int init_core(int argc, char *argv[])
+int Core::init(int argc, char *argv[])
 {
 	return handle_po(argc, argv);
 }

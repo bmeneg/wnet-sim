@@ -1,10 +1,12 @@
 #include "mainwindow.hpp"
 #include "core.hpp"
+#include "edge_ui.hpp"
 
 #include <QFileDialog>
 #include <QStatusBar>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+MainWindow::MainWindow(Core *core, QWidget *parent)
+	: QMainWindow(parent), core(core)
 {
 	create_actions();
 	create_menus();
@@ -34,7 +36,7 @@ void MainWindow::open_graph_file()
 {
 	QString filename = QFileDialog::getOpenFileName(this);
 	if (!filename.isEmpty())
-		run_core_gui(filename.toStdString());
+		ngraph = core->run_gui(filename.toStdString());
 	statusBar()->showMessage(tr("File loaded"), 2000);
 	draw_nodes();
 }
@@ -67,7 +69,28 @@ void MainWindow::create_menus()
 
 void MainWindow::draw_nodes()
 {
-	Node *node1 = new Node(graph_view);
-	graph_scene->addItem(node1);
-	node1->setPos(10, 10);
+	auto edges_attr = ngraph->graph_edges();
+	VertexUI *node1, *node2;
+	EdgeUI *edge;
+
+	for (auto graph_edge : edges_attr) {
+		auto vid_pair = graph_edge.second;
+		node1 = new VertexUI(vid_pair.first, graph_view);
+		node2 = new VertexUI(vid_pair.second, graph_view);
+
+		for (QGraphicsItem *item : graph_scene->items()) {
+			VertexUI *tmp_node = qgraphicsitem_cast<VertexUI *>(item);
+			if (tmp_node) {
+				if (tmp_node->id() == node1->id())
+					node1 = tmp_node;
+				else if (tmp_node->id() == node2->id())
+					node2 = tmp_node;
+			}
+		}
+
+		edge = new EdgeUI(node1, node2, graph_edge.first);
+		graph_scene->addItem(node1);
+		graph_scene->addItem(node2);
+		graph_scene->addItem(edge);
+	}
 }

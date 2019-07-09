@@ -74,6 +74,10 @@ void NetworkGraph::add_routes_from_file(std::string filename)
 
 	// sort vertex LUT to allow binary search
 	std::sort(vertex_lut.begin(), vertex_lut.end());
+	auto epair = edges(graph);
+	for (auto it = epair.first; it != epair.second; it++) {
+
+	}
 
 #ifdef DEBUG
 	std::cout << "vertices found: ";
@@ -82,7 +86,7 @@ void NetworkGraph::add_routes_from_file(std::string filename)
 	for (auto v_it = vpair.first; v_it != vpair.second; v_it++) {
 		std::cout << "edges incident to vertex " << this->graph[*v_it].id <<
 			" are: " << std::endl;
-		std::pair<edge_it_t, edge_it_t> epair = out_edges(*v_it, this->graph);
+		auto epair = out_edges(*v_it, this->graph);
 		for (auto e_it = epair.first; e_it != epair.second; e_it++) {
 			std::cout << "(" << this->graph[source(*e_it, this->graph)].id <<
 				     "," << this->graph[target(*e_it, this->graph)].id <<
@@ -126,4 +130,25 @@ void NetworkGraph::calc_routing_graph()
 route_t NetworkGraph::find_shortest_path(unsigned long src, unsigned long dest)
 {
 	return this->graph[this->vertex_lut[src].second].routing_table[dest];
+}
+
+std::vector<edge_t> NetworkGraph::graph_edges() const
+{
+	std::vector<edge_t> edges_list;
+
+	auto epair = edges(graph);
+	for (auto it = epair.first; it != epair.second; it++) {
+		auto vpair = std::make_pair(graph[source(*it, graph)].id,
+				graph[target(*it, graph)].id);
+		edges_list.push_back(std::make_pair(graph[*it].cost, vpair));
+	}
+
+#ifdef DEBUG
+	std::cout << "Uniq edges:" << std::endl;
+	for (auto edge : edges_list)
+		std::cout << edge.second.first << "," << edge.second.second <<
+			     " = " << edge.first << std::endl;
+#endif
+
+	return edges_list;
 }
