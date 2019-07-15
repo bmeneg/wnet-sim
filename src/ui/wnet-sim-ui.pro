@@ -15,7 +15,9 @@ TEMPLATE = app
 # any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS DEBUG
+DEFINES += \
+	QT_DEPRECATED_WARNINGS \
+	DEBUG
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -39,7 +41,8 @@ HEADERS += \
         mainwindow.hpp \
         vertex_ui.hpp
 
-LIBS += -lboost_graph \
+LIBS += \
+     -lboost_graph \
      -lboost_program_options
 
 INCLUDEPATH += /usr/lib64/boost/ \

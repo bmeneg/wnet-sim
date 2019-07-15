@@ -25,7 +25,6 @@ private:
 
 	QPointF _src_point;
 	QPointF _dest_point;
-	qreal _arrow_sz;
 };
 
 #endif // EDGE_HPP

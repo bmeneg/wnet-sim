@@ -1,8 +1,8 @@
 #include "vertex_ui.hpp"
 #include "edge_ui.hpp"
 
-VertexUI::VertexUI(unsigned long id, QGraphicsView *graph)
-	: _id(id), _graph_view(graph)
+VertexUI::VertexUI(unsigned long id)
+	: _id(id)
 {
 	setFlag(ItemIsMovable);
 	setFlag(ItemSendsGeometryChanges);

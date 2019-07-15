@@ -23,9 +23,9 @@ MainWindow::MainWindow(Core *core, QWidget *parent)
 	_graph_view->setRenderHint(QPainter::Antialiasing);
 	_graph_view->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 
-	this->setMinimumSize(400, 400);
-	this->setWindowTitle(tr("Wireless Network Simulator"));
-	this->setCentralWidget(_graph_view);
+	setMinimumSize(400, 400);
+	setWindowTitle(tr("Wireless Network Simulator"));
+	setCentralWidget(_graph_view);
 }
 
 MainWindow::~MainWindow()
@@ -75,8 +75,8 @@ void MainWindow::_draw_nodes()
 
 	for (auto graph_edge : edges_attr) {
 		auto vid_pair = graph_edge.second;
-		node1 = new VertexUI(vid_pair.first, _graph_view);
-		node2 = new VertexUI(vid_pair.second, _graph_view);
+		node1 = new VertexUI(vid_pair.first);
+		node2 = new VertexUI(vid_pair.second);
 
 		for (QGraphicsItem *item : _graph_scene->items()) {
 			VertexUI *tmp_node = qgraphicsitem_cast<VertexUI *>(item);

@@ -10,7 +10,7 @@ class EdgeUI;
 class VertexUI : public QGraphicsItem
 {
 public:
-	VertexUI(unsigned long, QGraphicsView *);
+	VertexUI(unsigned long);
 	void add_edge(EdgeUI *);
 	unsigned long id(void) const;
 	QList<EdgeUI *> edges() const;
