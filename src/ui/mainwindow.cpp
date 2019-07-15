@@ -77,20 +77,29 @@ void MainWindow::_draw_nodes()
 		auto vid_pair = graph_edge.second;
 		node1 = new VertexUI(vid_pair.first);
 		node2 = new VertexUI(vid_pair.second);
+		bool node1_found = false;
+		bool node2_found = false;
 
 		for (QGraphicsItem *item : _graph_scene->items()) {
 			VertexUI *tmp_node = qgraphicsitem_cast<VertexUI *>(item);
 			if (tmp_node) {
-				if (tmp_node->id() == node1->id())
+				if (!node1_found && tmp_node->id() == node1->id()) {
 					node1 = tmp_node;
-				else if (tmp_node->id() == node2->id())
+					node1_found = true;
+				} else if (!node2_found && tmp_node->id() == node2->id()) {
 					node2 = tmp_node;
+					node2_found = true;
+				}
 			}
 		}
 
 		edge = new EdgeUI(node1, node2, graph_edge.first);
-		_graph_scene->addItem(node1);
-		_graph_scene->addItem(node2);
+		if (!node1_found) {
+			_graph_scene->addItem(node1);
+		}
+		if (!node2_found) {
+			_graph_scene->addItem(node2);
+		}
 		_graph_scene->addItem(edge);
 	}
 }
