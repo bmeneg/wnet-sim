@@ -26,12 +26,17 @@ void EdgeUI::adjust()
 	QLineF line(mapFromItem(_src, 0, 0), mapFromItem(_dest, 0, 0));
 	qreal line_len = line.length();
 	prepareGeometryChange();
+	/* we are going to use node radius to calculate line offset on both source
+	 * and destination vertex. Since both have the same shape we can choose _src
+	 * or _dest inhere for retrieve such value */
+	qreal vertex_radius = qAbs(_src->boundingRect().x());
+	qreal vertex_width = _src->boundingRect().width();
 
-	if (line_len > qreal(20.)) {
-		QPointF edge_offset((line.dx() * 10) / line_len,
-				    (line.dy() * 10) / line_len);
+	if (line_len > qreal(vertex_width)) {
+		QPointF edge_offset(line.dx() * vertex_radius / line_len,
+					line.dy() * vertex_radius / line_len);
 		_src_point = line.p1() + edge_offset;
-		_dest_point = line.p2() + edge_offset;
+		_dest_point = line.p2() - edge_offset;
 	} else {
 		_src_point = _dest_point = line.p1();
 	}

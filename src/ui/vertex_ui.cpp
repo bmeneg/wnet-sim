@@ -18,14 +18,13 @@ void VertexUI::add_edge(EdgeUI *edge)
 
 QRectF VertexUI::boundingRect() const
 {
-	qreal adjust = 2;
-	return QRectF(-10 - adjust, -10 - adjust, 43 + adjust, 43 + adjust);
+	return QRectF(-20, -20, 40, 40);
 }
 
 QPainterPath VertexUI::shape() const
 {
 	QPainterPath path;
-	path.addEllipse(-10, -10, 40, 40);
+	path.addEllipse(boundingRect());
 	return path;
 }
 
@@ -33,7 +32,7 @@ void VertexUI::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
 {
 	painter->setPen(Qt::NoPen);
 	painter->setBrush(Qt::green);
-	painter->drawEllipse(-7, -7, 40, 40);
+	painter->drawEllipse(boundingRect());
 }
 
 QVariant VertexUI::itemChange(GraphicsItemChange change, const QVariant &value)
