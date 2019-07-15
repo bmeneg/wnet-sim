@@ -1,5 +1,5 @@
-#ifndef EDGE_HPP
-#define EDGE_HPP
+#ifndef EDGE_UI_HPP
+#define EDGE_UI_HPP
 
 #include <QGraphicsItem>
 #include <QGraphicsView>
@@ -19,13 +19,13 @@ protected:
 	void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) override;
 
 private:
-	VertexUI *src;
-	VertexUI *dest;
+	VertexUI *_src;
+	VertexUI *_dest;
 	unsigned long _weight;
 
-	QPointF src_point;
-	QPointF dest_point;
-	qreal arrow_sz;
+	QPointF _src_point;
+	QPointF _dest_point;
+	qreal _arrow_sz;
 };
 
 #endif // EDGE_HPP

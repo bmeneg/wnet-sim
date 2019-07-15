@@ -39,9 +39,9 @@ public:
 	std::vector<edge_t> graph_edges(void) const;
 
 private:
-	graph_t graph;
-	std::string graph_filename;
+	graph_t _graph;
+	std::string _graph_filename;
 
 	/* node id <-> graph vertex ref look up table */
-	std::vector<std::pair<unsigned long, vertex_desc_t>> vertex_lut;
+	std::vector<std::pair<unsigned long, vertex_desc_t>> _vertex_lut;
 };

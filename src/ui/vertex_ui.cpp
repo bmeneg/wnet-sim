@@ -2,7 +2,7 @@
 #include "edge_ui.hpp"
 
 VertexUI::VertexUI(unsigned long id, QGraphicsView *graph)
-	: _id(id), graph_view(graph)
+	: _id(id), _graph_view(graph)
 {
 	setFlag(ItemIsMovable);
 	setFlag(ItemSendsGeometryChanges);
@@ -12,7 +12,7 @@ VertexUI::VertexUI(unsigned long id, QGraphicsView *graph)
 
 void VertexUI::add_edge(EdgeUI *edge)
 {
-	edge_list << edge;
+	_edge_list.push_back(edge);
 	edge->adjust();
 }
 
@@ -40,7 +40,7 @@ QVariant VertexUI::itemChange(GraphicsItemChange change, const QVariant &value)
 {
 	switch (change) {
 	case ItemPositionHasChanged:
-		for (EdgeUI *edge : qAsConst(edge_list))
+		for (EdgeUI *edge : qAsConst(_edge_list))
 		    edge->adjust();
 		break;
 	default:

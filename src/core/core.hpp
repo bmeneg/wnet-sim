@@ -12,9 +12,9 @@ public:
 	int run_cli(void);
 
 private:
-	NetworkGraph ngraph;
+	int _handle_po(int, char *[]);
 
-	int handle_po(int, char *[]);
+	NetworkGraph _ngraph;
 };
 
 

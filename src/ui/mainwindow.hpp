@@ -23,20 +23,20 @@ private slots:
 	void open_graph_file();
 
 private:
-	void create_actions(void);
-	void create_menus(void);
-	void create_status_bar(void);
+	void _create_actions(void);
+	void _create_menus(void);
+	void _create_status_bar(void);
 
-	void draw_nodes(void);
+	void _draw_nodes(void);
 
-	Core *core;
-	NetworkGraph *ngraph;
+	Core *_core;
+	NetworkGraph *_ngraph;
 
-	QAction *open_action;
-	QAction *exit_action;
-	QMenu *file_menu;
-	QGraphicsView *graph_view;
-	QGraphicsScene *graph_scene;
+	QAction *_open_action;
+	QAction *_exit_action;
+	QMenu *_file_menu;
+	QGraphicsView *_graph_view;
+	QGraphicsScene *_graph_scene;
 };
 
 #endif // MAINWINDOW_HPP

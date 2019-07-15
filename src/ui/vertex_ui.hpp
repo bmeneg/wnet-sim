@@ -1,5 +1,5 @@
-#ifndef NODES_HPP
-#define NODES_HPP
+#ifndef VERTEX_UI_HPP
+#define VERTEX_UI_HPP
 
 #include <QGraphicsView>
 #include <QGraphicsItem>
@@ -25,10 +25,10 @@ protected:
 
 private:
 	unsigned long _id;
-	QList<EdgeUI *> edge_list;
+	QList<EdgeUI *> _edge_list;
 
-	QPointF new_pos;
-	QGraphicsView *graph_view;
+	QPointF _new_pos;
+	QGraphicsView *_graph_view;
 };
 
 #endif // NODES_HPP

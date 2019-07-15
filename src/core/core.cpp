@@ -6,7 +6,7 @@
 
 namespace po = boost::program_options;
 
-int Core::handle_po(int argc, char *argv[])
+int Core::_handle_po(int argc, char *argv[])
 {
 	/* Command line options handling */
 	std::string app_name(argv[0]);
@@ -55,7 +55,7 @@ int Core::handle_po(int argc, char *argv[])
 		return -1;
 	}
 
-	ngraph.graph_file(in_graph_file);
+	_ngraph.graph_file(in_graph_file);
 	if (enable_gui)
 		return 0;
 	return 1;
@@ -63,9 +63,9 @@ int Core::handle_po(int argc, char *argv[])
 
 NetworkGraph * Core::run_gui(std::string filename)
 {
-	ngraph.graph_file(filename);
-	ngraph.add_routes_from_file(ngraph.graph_file());
-	return &ngraph;
+	_ngraph.graph_file(filename);
+	_ngraph.add_routes_from_file(_ngraph.graph_file());
+	return &_ngraph;
 }
 
 int Core::run_cli(void)
@@ -73,16 +73,16 @@ int Core::run_cli(void)
 	unsigned long src, dest;
 	route_t route;
 
-	ngraph.add_routes_from_file(ngraph.graph_file());
-	ngraph.graph_edges();
-	ngraph.calc_routing_graph();
+	_ngraph.add_routes_from_file(_ngraph.graph_file());
+	_ngraph.graph_edges();
+	_ngraph.calc_routing_graph();
 
 	std::cout << "Choose the source node: ";
 	std::cin >> src;
 	std::cout << "Choose the destination node: ";
 	std::cin >> dest;
 
-	route = ngraph.find_shortest_path(src, dest);
+	route = _ngraph.find_shortest_path(src, dest);
 
 	std::cout << "distance from " << src << " to " << dest << ": " <<
 		     route.first << std::endl;
@@ -96,5 +96,5 @@ int Core::run_cli(void)
 
 int Core::init(int argc, char *argv[])
 {
-	return handle_po(argc, argv);
+	return _handle_po(argc, argv);
 }
