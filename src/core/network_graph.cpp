@@ -15,12 +15,12 @@ using namespace boost;
 
 void NetworkGraph::graph_file(std::string filename)
 {
-	this->graph_filename = filename;
+	graph_filename = filename;
 }
 
 std::string NetworkGraph::graph_file(void)
 {
-	return this->graph_filename;
+	return graph_filename;
 }
 
 void NetworkGraph::add_routes_from_file(std::string filename)
@@ -47,12 +47,12 @@ void NetworkGraph::add_routes_from_file(std::string filename)
 		for (auto it = tokens.begin(); it != tokens.end(); it++)
 			ve_attr.push_back(std::stoul(*it));
 
-		auto vpair = vertices(this->graph);
+		auto vpair = vertices(graph);
 		for (auto it = vpair.first; it != vpair.second; it++) {
-			if (!vertex_0_found && this->graph[*it].id == ve_attr.at(0)) {
+			if (!vertex_0_found && graph[*it].id == ve_attr.at(0)) {
 				vertex_0 = *it;
 				vertex_0_found = true;
-			} else if (!vertex_1_found && this->graph[*it].id == ve_attr.at(1)) {
+			} else if (!vertex_1_found && graph[*it].id == ve_attr.at(1)) {
 				vertex_1 = *it;
 				vertex_1_found = true;
 			}
@@ -61,15 +61,15 @@ void NetworkGraph::add_routes_from_file(std::string filename)
 		// in case vertex doesn't already exists, create new one and add
 		// it to LUT
 		if (!vertex_0_found) {
-			vertex_0 = add_vertex({ve_attr.at(0)}, this->graph);
-			this->vertex_lut.push_back(std::make_pair(ve_attr.at(0), vertex_0));
+			vertex_0 = add_vertex({ve_attr.at(0)}, graph);
+			vertex_lut.push_back(std::make_pair(ve_attr.at(0), vertex_0));
 		}
 		if (!vertex_1_found) {
-			vertex_1 = add_vertex({ve_attr.at(1)}, this->graph);
-			this->vertex_lut.push_back(std::make_pair(ve_attr.at(1), vertex_1));
+			vertex_1 = add_vertex({ve_attr.at(1)}, graph);
+			vertex_lut.push_back(std::make_pair(ve_attr.at(1), vertex_1));
 		}
 
-		add_edge(vertex_0, vertex_1, {ve_attr.at(2)}, this->graph);
+		add_edge(vertex_0, vertex_1, {ve_attr.at(2)}, graph);
 	}
 
 	// sort vertex LUT to allow binary search
@@ -81,55 +81,55 @@ void NetworkGraph::add_routes_from_file(std::string filename)
 
 #ifdef DEBUG
 	std::cout << "vertices found: ";
-	print_vertices(this->graph, get(&Vertex::id, this->graph));
-	auto vpair = vertices(this->graph);
+	print_vertices(graph, get(&Vertex::id, graph));
+	auto vpair = vertices(graph);
 	for (auto v_it = vpair.first; v_it != vpair.second; v_it++) {
-		std::cout << "edges incident to vertex " << this->graph[*v_it].id <<
+		std::cout << "edges incident to vertex " << graph[*v_it].id <<
 			" are: " << std::endl;
-		auto epair = out_edges(*v_it, this->graph);
+		auto epair = out_edges(*v_it, graph);
 		for (auto e_it = epair.first; e_it != epair.second; e_it++) {
-			std::cout << "(" << this->graph[source(*e_it, this->graph)].id <<
-				     "," << this->graph[target(*e_it, this->graph)].id <<
-				     ")" << " = " << this->graph[*e_it].cost <<
+			std::cout << "(" << graph[source(*e_it, graph)].id <<
+				     "," << graph[target(*e_it, graph)].id <<
+				     ")" << " = " << graph[*e_it].cost <<
 				     std::endl;
 		}
 	}
 
 	std::cout << std::endl;
-	print_graph(this->graph, get(&Vertex::id, this->graph));
+	print_graph(graph, get(&Vertex::id, graph));
 	std::cout << std::endl;
 #endif
 }
 
 void NetworkGraph::calc_routing_graph()
 {
-	std::vector<int> distance(num_vertices(this->graph));
+	std::vector<int> distance(num_vertices(graph));
 	vertex_desc_t curr_vertex_desc = 0;
 
 	// run the whole graph collecting each distance for all vertex
-	for (auto src_vpair : this->vertex_lut) {
-		dijkstra_shortest_paths(this->graph, src_vpair.second,
-					predecessor_map(get(&Vertex::prev, this->graph))
+	for (auto src_vpair : vertex_lut) {
+		dijkstra_shortest_paths(graph, src_vpair.second,
+					predecessor_map(get(&Vertex::prev, graph))
 					.distance_map(make_iterator_property_map(distance.begin(),
-					       get(vertex_index, this->graph)))
-					.weight_map(get(&Edge::cost, this->graph)));
+					       get(vertex_index, graph)))
+					.weight_map(get(&Edge::cost, graph)));
 
-		for (auto dest_vpair : this->vertex_lut) {
+		for (auto dest_vpair : vertex_lut) {
 			route_t route;
 			route.first = distance[dest_vpair.second];
 			curr_vertex_desc = dest_vpair.second;
 			while (curr_vertex_desc != src_vpair.second) {
-				route.second.push_back(this->graph[curr_vertex_desc].id);
+				route.second.push_back(graph[curr_vertex_desc].id);
 				curr_vertex_desc = graph[curr_vertex_desc].prev;
 			}
-			this->graph[src_vpair.second].routing_table.push_back(route);
+			graph[src_vpair.second].routing_table.push_back(route);
 		}
 	}
 }
 
 route_t NetworkGraph::find_shortest_path(unsigned long src, unsigned long dest)
 {
-	return this->graph[this->vertex_lut[src].second].routing_table[dest];
+	return graph[vertex_lut[src].second].routing_table[dest];
 }
 
 std::vector<edge_t> NetworkGraph::graph_edges() const
