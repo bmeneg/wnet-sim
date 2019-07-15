@@ -4,6 +4,7 @@
 
 #include <QFileDialog>
 #include <QStatusBar>
+#include <QRandomGenerator>
 
 MainWindow::MainWindow(Core *core, QWidget *parent)
 	: QMainWindow(parent), _core(core)
@@ -72,6 +73,8 @@ void MainWindow::_draw_nodes()
 	auto edges_attr = _ngraph->graph_edges();
 	VertexUI *node1, *node2;
 	EdgeUI *edge;
+	QRandomGenerator *rand = QRandomGenerator::system();
+	QSize gview_sz = _graph_view->size();
 
 	for (auto graph_edge : edges_attr) {
 		auto vid_pair = graph_edge.second;
@@ -95,9 +98,13 @@ void MainWindow::_draw_nodes()
 
 		edge = new EdgeUI(node1, node2, graph_edge.first);
 		if (!node1_found) {
+			node1->setPos(rand->bounded(-gview_sz.width()/3, gview_sz.width()/3),
+						  rand->bounded(-gview_sz.height()/3, gview_sz.height()/3));
 			_graph_scene->addItem(node1);
 		}
 		if (!node2_found) {
+			node2->setPos(rand->bounded(-gview_sz.width()/3, gview_sz.width()/3),
+						  rand->bounded(-gview_sz.height()/3, gview_sz.height()/3));
 			_graph_scene->addItem(node2);
 		}
 		_graph_scene->addItem(edge);
