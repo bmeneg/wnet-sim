@@ -24,7 +24,15 @@ QRectF VertexUI::boundingRect() const
 QPainterPath VertexUI::shape() const
 {
 	QPainterPath path;
+	QString id = QString::number(_id);
+	QFont id_font;
+	QPointF id_pos;
+
+	id_pos.setX(boundingRect().center().x() - id.size()*5);
+	id_pos.setY(boundingRect().center().y() + 5);
+	id_font.setBold(true);
 	path.addEllipse(boundingRect());
+	path.addText(id_pos, id_font, id);
 	return path;
 }
 
@@ -32,7 +40,7 @@ void VertexUI::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
 {
 	painter->setPen(Qt::NoPen);
 	painter->setBrush(Qt::green);
-	painter->drawEllipse(boundingRect());
+	painter->drawPath(shape());
 }
 
 QVariant VertexUI::itemChange(GraphicsItemChange change, const QVariant &value)
