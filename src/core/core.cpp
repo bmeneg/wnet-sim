@@ -26,15 +26,13 @@ int Core::_handle_po(int argc, char *argv[])
 			;
 		hidden_opts.add_options()
 			("input-file",
-			 po::value<std::string>()->default_value("graph.txt"),
-			 "graph file")
+				po::value<std::string>()->default_value("graph.txt"),
+				"graph file")
 			;
 		pos_opts.add("input-file", -1);
 		cmdline_opts.add(normal_opts).add(hidden_opts);
-		store(po::command_line_parser(
-		      argc,
-		      argv).options(cmdline_opts).positional(pos_opts).run(),
-		      var_map);
+		store(po::command_line_parser(argc, argv).options(cmdline_opts).positional(pos_opts).run(),
+			var_map);
 		notify(var_map);
 
 		if (var_map.count("help")) {
@@ -85,7 +83,7 @@ int Core::run_cli(void)
 	route = _ngraph.find_shortest_path(src, dest);
 
 	std::cout << "distance from " << src << " to " << dest << ": " <<
-		     route.first << std::endl;
+		route.first << std::endl;
 	std::cout << "route: ";
 	for (unsigned long id : route.second)
 		std::cout << id << " ";

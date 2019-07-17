@@ -74,10 +74,6 @@ void NetworkGraph::add_routes_from_file(std::string filename)
 
 	// sort vertex LUT to allow binary search
 	std::sort(_vertex_lut.begin(), _vertex_lut.end());
-	auto epair = edges(_graph);
-	for (auto it = epair.first; it != epair.second; it++) {
-
-	}
 
 #ifdef DEBUG
 	std::cout << "vertices found: ";
@@ -89,9 +85,8 @@ void NetworkGraph::add_routes_from_file(std::string filename)
 		auto epair = out_edges(*v_it, _graph);
 		for (auto e_it = epair.first; e_it != epair.second; e_it++) {
 			std::cout << "(" << _graph[source(*e_it, _graph)].id <<
-				     "," << _graph[target(*e_it, _graph)].id <<
-				     ")" << " = " << _graph[*e_it].cost <<
-				     std::endl;
+				"," << _graph[target(*e_it, _graph)].id <<
+				")" << " = " << _graph[*e_it].cost << std::endl;
 		}
 	}
 
@@ -109,10 +104,10 @@ void NetworkGraph::calc_routing_graph()
 	// run the whole graph collecting each distance for all vertex
 	for (auto src_vpair : _vertex_lut) {
 		dijkstra_shortest_paths(_graph, src_vpair.second,
-					predecessor_map(get(&Vertex::prev, _graph))
-					.distance_map(make_iterator_property_map(distance.begin(),
-					       get(vertex_index, _graph)))
-					.weight_map(get(&Edge::cost, _graph)));
+			predecessor_map(get(&Vertex::prev, _graph))
+			.distance_map(make_iterator_property_map(distance.begin(),
+				get(vertex_index, _graph)))
+			.weight_map(get(&Edge::cost, _graph)));
 
 		for (auto dest_vpair : _vertex_lut) {
 			route_t route;
@@ -139,15 +134,15 @@ std::vector<edge_t> NetworkGraph::graph_edges() const
 	auto epair = edges(_graph);
 	for (auto it = epair.first; it != epair.second; it++) {
 		auto vpair = std::make_pair(_graph[source(*it, _graph)].id,
-				_graph[target(*it, _graph)].id);
+			_graph[target(*it, _graph)].id);
 		edges_list.push_back(std::make_pair(_graph[*it].cost, vpair));
 	}
 
 #ifdef DEBUG
 	std::cout << "Uniq edges:" << std::endl;
 	for (auto edge : edges_list)
-		std::cout << edge.second.first << "," << edge.second.second <<
-			     " = " << edge.first << std::endl;
+		std::cout << edge.second.first << "," << edge.second.second << " = " <<
+			edge.first << std::endl;
 #endif
 
 	return edges_list;

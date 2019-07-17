@@ -34,7 +34,7 @@ void EdgeUI::adjust()
 
 	if (line_len > qreal(vertex_width)) {
 		QPointF edge_offset(line.dx() * vertex_radius / line_len,
-					line.dy() * vertex_radius / line_len);
+			line.dy() * vertex_radius / line_len);
 		_src_point = line.p1() + edge_offset;
 		_dest_point = line.p2() - edge_offset;
 	} else {

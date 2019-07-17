@@ -99,12 +99,12 @@ void MainWindow::_draw_nodes()
 		edge = new EdgeUI(node1, node2, graph_edge.first);
 		if (!node1_found) {
 			node1->setPos(rand->bounded(-gview_sz.width()/3, gview_sz.width()/3),
-						  rand->bounded(-gview_sz.height()/3, gview_sz.height()/3));
+				rand->bounded(-gview_sz.height()/3, gview_sz.height()/3));
 			_graph_scene->addItem(node1);
 		}
 		if (!node2_found) {
 			node2->setPos(rand->bounded(-gview_sz.width()/3, gview_sz.width()/3),
-						  rand->bounded(-gview_sz.height()/3, gview_sz.height()/3));
+				rand->bounded(-gview_sz.height()/3, gview_sz.height()/3));
 			_graph_scene->addItem(node2);
 		}
 		_graph_scene->addItem(edge);
