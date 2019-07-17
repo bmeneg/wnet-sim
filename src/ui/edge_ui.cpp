@@ -47,9 +47,12 @@ QRectF EdgeUI::boundingRect() const
 	if (!_src || !_dest)
 		return QRectF();
 
-	QRectF rect(_src_point, QSizeF(_dest_point.x() - _src_point.x(),
-								   _dest_point.y() - _src_point.y()));
-	return rect.normalized();
+	QRectF line_rect(_src_point, QSizeF(_dest_point.x() - _src_point.x(),
+		_dest_point.y() - _src_point.y()));
+	QFontMetricsF cost_fontm(scene()->font());
+	QRectF text_rect = cost_fontm.boundingRect(QString::number(_weight)).translated(line_rect.center());
+
+	return line_rect.united(text_rect);
 }
 
 void EdgeUI::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
@@ -61,6 +64,7 @@ void EdgeUI::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget 
 	if (qFuzzyCompare(line.length(), qreal(0.)))
 		return;
 
-	painter->setPen(QPen(Qt::black, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+	painter->setPen(QPen(Qt::black));
 	painter->drawLine(line);
+	painter->drawText(line.center(), QString::number(_weight));
 }
