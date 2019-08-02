@@ -25,9 +25,7 @@ int Core::_handle_po(int argc, char *argv[])
 			("no-gui", "disable gui")
 			;
 		hidden_opts.add_options()
-			("input-file",
-				po::value<std::string>()->default_value("graph.txt"),
-				"graph file")
+			("input-file", "graph file")
 			;
 		pos_opts.add("input-file", -1);
 		cmdline_opts.add(normal_opts).add(hidden_opts);
@@ -42,18 +40,15 @@ int Core::_handle_po(int argc, char *argv[])
 		}
 		if (var_map.count("no-gui"))
 			enable_gui = false;
-		if (var_map.count("input-file")) {
+		if (var_map.count("input-file"))
 			in_graph_file = var_map["input-file"].as<std::string>();
-		} else {
-			std::cout << "error: input file missing" << std::endl;
-			return -1;
-		}
 	} catch (std::exception& e) {
 		std::cout << "error: " << e.what() << std::endl;
 		return -1;
 	}
 
 	_ngraph.graph_file(in_graph_file);
+
 	if (enable_gui)
 		return 0;
 	return 1;
@@ -71,7 +66,11 @@ int Core::run_cli(void)
 	unsigned long src, dest;
 	route_t route;
 
-	_ngraph.add_routes_from_file(_ngraph.graph_file());
+	if (!_ngraph.graph_file().empty())
+		_ngraph.add_routes_from_file(_ngraph.graph_file());
+	else
+		_ngraph.add_routes_random();
+
 	_ngraph.graph_edges();
 	_ngraph.calc_routing_graph();
 

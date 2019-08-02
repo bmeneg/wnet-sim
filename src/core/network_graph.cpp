@@ -96,6 +96,11 @@ void NetworkGraph::add_routes_from_file(std::string filename)
 #endif
 }
 
+void NetworkGraph::add_routes_random()
+{
+	// do nothing
+}
+
 void NetworkGraph::calc_routing_graph()
 {
 	std::vector<int> distance(num_vertices(_graph));

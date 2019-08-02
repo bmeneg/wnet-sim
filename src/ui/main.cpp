@@ -6,6 +6,7 @@
 int main(int argc, char *argv[])
 {
 	Core core;
+
 	// run program without GUI
 	if (core.init(argc, argv) > 0)
 		return core.run_cli();

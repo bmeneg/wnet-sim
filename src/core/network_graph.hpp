@@ -34,6 +34,7 @@ public:
 	std::string graph_file(void);
 
 	void add_routes_from_file(std::string);
+	void add_routes_random(void);
 	void calc_routing_graph(void);
 	route_t find_shortest_path(unsigned long src, unsigned long dest);
 	std::vector<edge_t> graph_edges(void) const;
