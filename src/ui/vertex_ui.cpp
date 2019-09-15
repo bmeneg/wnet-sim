@@ -1,7 +1,10 @@
+#include <QtWidgets>
+
+#include "mainwindow.hpp"
 #include "vertex_ui.hpp"
 #include "edge_ui.hpp"
 
-VertexUI::VertexUI(unsigned long id)
+VertexUI::VertexUI(unsigned int id)
 	: _id(id)
 {
 	setFlag(ItemIsMovable);
@@ -14,6 +17,11 @@ void VertexUI::add_edge(EdgeUI *edge)
 {
 	_edge_list.push_back(edge);
 	edge->adjust();
+}
+
+int VertexUI::type() const
+{
+	return Type;
 }
 
 QRectF VertexUI::boundingRect() const
@@ -39,7 +47,12 @@ QPainterPath VertexUI::shape() const
 void VertexUI::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
 	painter->setPen(Qt::NoPen);
-	painter->setBrush(Qt::green);
+
+	if (_selected_state)
+		painter->setBrush(Qt::red);
+	else
+		painter->setBrush(Qt::green);
+
 	painter->drawPath(shape());
 }
 
@@ -67,9 +80,16 @@ void VertexUI::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
 	update();
 	QGraphicsItem::mouseReleaseEvent(event);
+	qobject_cast<MainWindow *>(scene()->parent())->show_routing_table(_id);
 }
 
-unsigned long VertexUI::id() const
+unsigned int VertexUI::id() const
 {
 	return _id;
+}
+
+void VertexUI::state(bool state)
+{
+	_selected_state = state;
+	update();
 }

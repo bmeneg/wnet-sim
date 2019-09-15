@@ -17,6 +17,8 @@ TEMPLATE = app
 # deprecated API in order to know how to port your code away from it.
 DEFINES += \
 	QT_DEPRECATED_WARNINGS \
+	PRE_PROCESSING \
+#	RUNTIME_PROCESSING \
 	DEBUG
 
 # You can also make your code fail to compile if you use deprecated APIs.
@@ -32,6 +34,7 @@ SOURCES += \
         edge_ui.cpp \
         main.cpp \
         mainwindow.cpp \
+        pathdef_dialog.cpp \
         vertex_ui.cpp
 
 HEADERS += \
@@ -39,6 +42,7 @@ HEADERS += \
         ../core/network_graph.hpp \
         edge_ui.hpp \
         mainwindow.hpp \
+        pathdef_dialog.hpp \
         vertex_ui.hpp
 
 LIBS += \

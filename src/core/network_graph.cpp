@@ -1,6 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <cmath>
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -18,17 +22,32 @@ void NetworkGraph::graph_file(std::string filename)
 	_graph_filename = filename;
 }
 
-std::string NetworkGraph::graph_file(void)
+std::string NetworkGraph::graph_file(void) const
 {
 	return _graph_filename;
 }
 
-void NetworkGraph::add_routes_from_file(std::string filename)
+void NetworkGraph::sqr_weight(unsigned int weight)
 {
-	std::ifstream routes_file(filename);
+	_sqr_weight = weight;
+}
+
+unsigned int NetworkGraph::sqr_weight(void) const
+{
+	return _sqr_weight;
+}
+
+void NetworkGraph::add_routes_from_file()
+{
+	if (_graph_filename.empty()) {
+		std::cout << "_graph_filename is empty!" << std::endl;
+		exit(1);
+	}
+
+	std::ifstream routes_file(_graph_filename);
 	std::string line;
 	std::vector<std::string> tokens;
-	std::vector<unsigned long> ve_attr;
+	std::vector<unsigned int> ve_attr;
 	vertex_desc_t vertex_0 = 0, vertex_1 = 0;
 	bool vertex_0_found, vertex_1_found;
 
@@ -42,10 +61,10 @@ void NetworkGraph::add_routes_from_file(std::string filename)
 
 		// retrieve data from graph file, which follows per line:
 		// <vertex_0> <vertex_1> <cost>
-		// and covert to unsigned long
+		// and covert to unsigned int
 		split(tokens, line, is_any_of(" "));
 		for (auto it = tokens.begin(); it != tokens.end(); it++)
-			ve_attr.push_back(std::stoul(*it));
+			ve_attr.push_back(static_cast<unsigned int>(std::stoul(*it)));
 
 		auto vpair = vertices(_graph);
 		for (auto it = vpair.first; it != vpair.second; it++) {
@@ -96,14 +115,105 @@ void NetworkGraph::add_routes_from_file(std::string filename)
 #endif
 }
 
+struct vertex_coord {
+	unsigned int id;
+	unsigned int x;
+	unsigned int y;
+};
+
 void NetworkGraph::add_routes_random()
 {
-	// do nothing
+	const unsigned int sqr = _sqr_weight;
+
+	// grid is a collection of "pixels" which might store a vertex or not:
+	// in case a vertex is there present, it'll be added to busy_pixel vector,
+	// easing the traverse when calculating the euclidean distance.
+	std::vector<struct vertex_coord *> grid(sqr * sqr);
+	std::vector<unsigned int> busy_pixel;
+
+	std::vector<std::pair<unsigned int,
+			std::pair<unsigned int, unsigned int>>> adj_list;
+	unsigned int id_count = 0;
+
+	// the distance between pixel will be considered 1du (distance units)
+	const unsigned int dist_pixel = 1;
+
+	// maximum field of view (range) for which we consider when a vertex can
+	// actually "see" other vertex.
+	const unsigned int max_fov = 4 * dist_pixel;
+
+	// place the resulting vector to a temp file to be processed afterwards
+	std::string tmp_filename(".wn_tmp");
+	std::ofstream out_file(tmp_filename);
+
+	// make random seems a true rng
+	srand(static_cast<unsigned int>(time(nullptr)));
+
+	// populate the grid with a certain propability
+	// TODO: drop hardcoded probability and allow user selection
+	for (unsigned int y = 0; y < sqr; y++) {
+		for (unsigned int x = 0; x < sqr; x++) {
+			unsigned int pixel = x + y * sqr;
+			if ((rand() % 12) < 1) {
+				auto *vertex = new struct
+					vertex_coord({id_count++, x , y});
+				grid.at(pixel) = vertex;
+				busy_pixel.push_back(pixel);
+			}
+		}
+	}
+
+#ifdef DEBUG
+	std::cout << "random> grid created with " << busy_pixel.size() <<
+				 " vertices" << std::endl;
+#endif
+
+	// traverse the vector of pixels calculating the euclidean distance
+	// between every vertex to determine what which can actually see
+	for (unsigned int i = 0; i < busy_pixel.size(); i++) {
+		unsigned int src_pixel = busy_pixel.at(i);
+		struct vertex_coord src_vertex = *grid.at(src_pixel);
+		for (unsigned int j = i + 1; j < busy_pixel.size(); j++) {
+			unsigned int dst_pixel = busy_pixel.at(j);
+			struct vertex_coord dst_vertex = *grid.at(dst_pixel);
+
+			unsigned int dx = dist_pixel * (src_vertex.x -
+							dst_vertex.x);
+			unsigned int dy = dist_pixel * (src_vertex.y -
+							dst_vertex.y);
+			unsigned int euc_dist = static_cast<unsigned int>(
+										std::sqrt(dx * dx + dy * dy));
+			if (euc_dist < max_fov)
+				adj_list.push_back(std::make_pair(euc_dist,
+								  std::make_pair(src_vertex.id,
+										 dst_vertex.id)));
+		}
+	}
+
+#ifdef DEBUG
+	std::cout << "random> distance vector defined" << std::endl;
+#endif
+
+	for (auto item : adj_list) {
+		out_file << item.second.first << " " << item.second.second << " "
+			<< item. first << std::endl;
+	}
+	out_file.close();
+	_graph_filename = tmp_filename;
+
+#ifdef DEBUG
+	for (auto item : adj_list) {
+		std::cout << item.second.first << " " << item.second.second << " "
+			<< item. first << std::endl;
+	}
+	std::cout << "filename: " << tmp_filename << std::endl;
+#endif
 }
 
-void NetworkGraph::calc_routing_graph()
+int NetworkGraph::calc_routing_graph()
 {
-	std::vector<int> distance(num_vertices(_graph));
+#ifdef PRE_PROCESSING
+	std::vector<unsigned int> distance(num_vertices(_graph));
 	vertex_desc_t curr_vertex_desc = 0;
 
 	// run the whole graph collecting each distance for all vertex
@@ -114,22 +224,55 @@ void NetworkGraph::calc_routing_graph()
 				get(vertex_index, _graph)))
 			.weight_map(get(&Edge::cost, _graph)));
 
-		for (auto dest_vpair : _vertex_lut) {
+		for (auto dst_vpair : _vertex_lut) {
 			route_t route;
-			route.first = distance[dest_vpair.second];
-			curr_vertex_desc = dest_vpair.second;
+			route.first = distance[dst_vpair.second];
+			curr_vertex_desc = dst_vpair.second;
 			while (curr_vertex_desc != src_vpair.second) {
+				// if the following condition is true and the while didn't
+				// finish, it means the vertices are not in the same graph
+				if (curr_vertex_desc == _graph[curr_vertex_desc].prev)
+					return -1;
+
 				route.second.push_back(_graph[curr_vertex_desc].id);
 				curr_vertex_desc = _graph[curr_vertex_desc].prev;
 			}
 			_graph[src_vpair.second].routing_table.push_back(route);
 		}
 	}
+#endif // PRE_PROCESSING
+	return 0;
 }
 
-route_t NetworkGraph::find_shortest_path(unsigned long src, unsigned long dest)
+route_t NetworkGraph::find_shortest_path(unsigned int src, unsigned int dst)
 {
-	return _graph[_vertex_lut[src].second].routing_table[dest];
+#ifdef PRE_PROCESSING
+	return _graph[_vertex_lut[src].second].routing_table[dst];
+#else
+	std::vector<unsigned int> distance(num_vertices(_graph));
+	vertex_desc_t curr_vertex_desc = 0;
+	route_t route;
+
+	// run the whole graph collecting each distance for all vertex
+	dijkstra_shortest_paths(_graph, _vertex_lut[src].second,
+		predecessor_map(get(&Vertex::prev, _graph))
+		.distance_map(make_iterator_property_map(distance.begin(),
+			get(vertex_index, _graph)))
+		.weight_map(get(&Edge::cost, _graph)));
+
+	route.first = distance[_vertex_lut[dst].second];
+	curr_vertex_desc = _vertex_lut[dst].second;
+	while (curr_vertex_desc != _vertex_lut[src].second) {
+		// if the following condition is true and the while didn't finish,
+		// it means the vertices are not in the same graph
+		if (curr_vertex_desc == _graph[curr_vertex_desc].prev)
+			return std::make_pair(0, std::vector<unsigned int>{});
+
+		route.second.push_back(_graph[curr_vertex_desc].id);
+		curr_vertex_desc = _graph[curr_vertex_desc].prev;
+	}
+	return route;
+#endif // PRE_PROCESSING
 }
 
 std::vector<edge_t> NetworkGraph::graph_edges() const
@@ -146,9 +289,17 @@ std::vector<edge_t> NetworkGraph::graph_edges() const
 #ifdef DEBUG
 	std::cout << "Uniq edges:" << std::endl;
 	for (auto edge : edges_list)
-		std::cout << edge.second.first << "," << edge.second.second << " = " <<
-			edge.first << std::endl;
+		std::cout << edge.second.first << "," << edge.second.second << " = "
+			<< edge.first << std::endl;
 #endif
 
 	return edges_list;
+}
+
+// clear everything
+void NetworkGraph::clear_graph()
+{
+	_vertex_lut.clear();
+	_graph.clear();
+	_graph_filename.clear();
 }

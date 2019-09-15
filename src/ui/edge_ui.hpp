@@ -2,17 +2,23 @@
 #define EDGE_UI_HPP
 
 #include <QGraphicsItem>
-#include <QGraphicsView>
-#include "vertex_ui.hpp"
+
+QT_BEGIN_NAMESPACE
+class QGraphicsView;
+QT_END_NAMESPACE
+class VertexUI;
 
 class EdgeUI : public QGraphicsItem
 {
 public:
-	EdgeUI(VertexUI *, VertexUI *, unsigned long);
+	enum { Type = UserType + 2 };
+
+	EdgeUI(VertexUI *, VertexUI *, unsigned int);
 	VertexUI *src_node(void) const;
 	VertexUI *dest_node(void) const;
-	unsigned long weight(void) const;
+	unsigned int weight(void) const;
 	void adjust(void);
+	int type(void) const override;
 
 protected:
 	QRectF boundingRect() const override;
@@ -21,7 +27,7 @@ protected:
 private:
 	VertexUI *_src;
 	VertexUI *_dest;
-	unsigned long _weight;
+	unsigned int _weight;
 
 	QPointF _src_point;
 	QPointF _dest_point;

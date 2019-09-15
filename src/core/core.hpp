@@ -8,7 +8,7 @@ class Core
 {
 public:
 	int init(int, char *[]);
-	NetworkGraph * run_gui(std::string filename);
+	NetworkGraph * network_graph();
 	int run_cli(void);
 
 private:

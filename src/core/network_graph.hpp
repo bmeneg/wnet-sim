@@ -14,35 +14,41 @@ typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS,
 typedef boost::graph_traits<graph_t>::vertex_descriptor vertex_desc_t;
 
 /* Route vector contains [<total cost>, <vector of node ids>] */
-typedef std::pair<int, std::vector<unsigned long>> route_t;
-typedef std::pair<unsigned long, std::pair<unsigned long, unsigned long>> edge_t;
+typedef std::pair<unsigned int, std::vector<unsigned int>> route_t;
+typedef std::pair<unsigned int, std::pair<unsigned int, unsigned int>> edge_t;
 
 struct Vertex {
-	unsigned long id;
+	unsigned int id;
 	vertex_desc_t prev = 0;
 	std::vector<route_t> routing_table{};
 };
 
 struct Edge {
-	unsigned long cost;
+	unsigned int cost;
 };
 
 class NetworkGraph
 {
 public:
 	void graph_file(std::string);
-	std::string graph_file(void);
+	std::string graph_file(void) const;
+	void sqr_weight(unsigned int);
+	unsigned int sqr_weight(void) const;
 
-	void add_routes_from_file(std::string);
+	void add_routes_from_file(void);
 	void add_routes_random(void);
-	void calc_routing_graph(void);
-	route_t find_shortest_path(unsigned long src, unsigned long dest);
+	int calc_routing_graph(void);
+	route_t find_shortest_path(unsigned int, unsigned int);
 	std::vector<edge_t> graph_edges(void) const;
+	void clear_graph(void);
 
 private:
 	graph_t _graph;
+	// input filename for a graph already generated
 	std::string _graph_filename;
+	// how much a sqr represents as graph weight
+	unsigned int _sqr_weight = 10;
 
-	/* node id <-> graph vertex ref look up table */
-	std::vector<std::pair<unsigned long, vertex_desc_t>> _vertex_lut;
+	// node id <-> graph vertex ref look up table
+	std::vector<std::pair<unsigned int, vertex_desc_t>> _vertex_lut;
 };

@@ -1,6 +1,9 @@
-#include "edge_ui.hpp"
+#include <QtWidgets>
 
-EdgeUI::EdgeUI(VertexUI *src, VertexUI *dest, unsigned long weight)
+#include "edge_ui.hpp"
+#include "vertex_ui.hpp"
+
+EdgeUI::EdgeUI(VertexUI *src, VertexUI *dest, unsigned int weight)
 	: _src(src), _dest(dest), _weight(weight)
 {
 	_src->add_edge(this);
@@ -67,4 +70,9 @@ void EdgeUI::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget 
 	painter->setPen(QPen(Qt::black));
 	painter->drawLine(line);
 	painter->drawText(line.center(), QString::number(_weight));
+}
+
+int EdgeUI::type() const
+{
+	return Type;
 }
