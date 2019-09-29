@@ -1,11 +1,12 @@
 #include <QtWidgets>
 
 #include "mainwindow.hpp"
+#include "network_graph.hpp"
 #include "vertex_ui.hpp"
 #include "edge_ui.hpp"
 
-VertexUI::VertexUI(unsigned int id)
-	: _id(id)
+VertexUI::VertexUI(struct Vertex *vertex)
+	: _vertex(vertex)
 {
 	setFlag(ItemIsMovable);
 	setFlag(ItemSendsGeometryChanges);
@@ -32,7 +33,7 @@ QRectF VertexUI::boundingRect() const
 QPainterPath VertexUI::shape() const
 {
 	QPainterPath path;
-	QString id = QString::number(_id);
+	QString id = QString::number(_vertex->id);
 	QFont id_font;
 	QPointF id_pos;
 
@@ -80,12 +81,18 @@ void VertexUI::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
 	update();
 	QGraphicsItem::mouseReleaseEvent(event);
-	qobject_cast<MainWindow *>(scene()->parent())->show_routing_table(_id);
+	qobject_cast<MainWindow *>(scene()->parent())->show_routing_table(_vertex->id);
+	qobject_cast<MainWindow *>(scene()->parent())->show_msg_table(_vertex->id);
 }
 
 unsigned int VertexUI::id() const
 {
-	return _id;
+	return _vertex->id;
+}
+
+Vertex * VertexUI::vertex() const
+{
+	return _vertex;
 }
 
 void VertexUI::state(bool state)

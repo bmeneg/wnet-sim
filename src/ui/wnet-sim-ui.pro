@@ -31,6 +31,7 @@ CONFIG += c++14
 SOURCES += \
         ../core/core.cpp \
         ../core/network_graph.cpp \
+        ../core/protocol.cpp \
         edge_ui.cpp \
         main.cpp \
         mainwindow.cpp \
@@ -40,6 +41,7 @@ SOURCES += \
 HEADERS += \
         ../core/core.hpp \
         ../core/network_graph.hpp \
+        ../core/protocol.hpp \
         edge_ui.hpp \
         mainwindow.hpp \
         pathdef_dialog.hpp \

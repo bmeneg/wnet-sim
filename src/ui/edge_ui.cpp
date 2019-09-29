@@ -1,10 +1,11 @@
 #include <QtWidgets>
 
+#include "network_graph.hpp"
 #include "edge_ui.hpp"
 #include "vertex_ui.hpp"
 
-EdgeUI::EdgeUI(VertexUI *src, VertexUI *dest, unsigned int weight)
-	: _src(src), _dest(dest), _weight(weight)
+EdgeUI::EdgeUI(struct Edge edge, VertexUI *src, VertexUI *dest)
+	: _edge(edge), _src(src), _dest(dest)
 {
 	_src->add_edge(this);
 	_dest->add_edge(this);
@@ -53,7 +54,7 @@ QRectF EdgeUI::boundingRect() const
 	QRectF line_rect(_src_point, QSizeF(_dest_point.x() - _src_point.x(),
 		_dest_point.y() - _src_point.y()));
 	QFontMetricsF cost_fontm(scene()->font());
-	QRectF text_rect = cost_fontm.boundingRect(QString::number(_weight)).translated(line_rect.center());
+	QRectF text_rect = cost_fontm.boundingRect(QString::number(_edge.cost)).translated(line_rect.center());
 
 	return line_rect.united(text_rect);
 }
@@ -69,10 +70,15 @@ void EdgeUI::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget 
 
 	painter->setPen(QPen(Qt::black));
 	painter->drawLine(line);
-	painter->drawText(line.center(), QString::number(_weight));
+	painter->drawText(line.center(), QString::number(_edge.cost));
 }
 
 int EdgeUI::type() const
 {
 	return Type;
+}
+
+Edge EdgeUI::edge() const
+{
+	return _edge;
 }

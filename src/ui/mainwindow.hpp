@@ -27,12 +27,14 @@ public:
 
 	void path_def(unsigned int, unsigned int);
 	void show_routing_table(unsigned int);
+	void show_msg_table(unsigned int);
 
 private slots:
 	void new_random_graph();
 	void open_graph_file();
 	void find_shortest_path();
 	void find_shortest_path_from_view(QListWidgetItem *);
+	void show_msg_rt_table(QListWidgetItem *);
 
 private:
 	void _create_actions(void);
@@ -50,6 +52,8 @@ private:
 	QGraphicsView *_graph_view;
 	QGraphicsScene *_graph_scene;
 	QListWidget *_rtable_view;
+	QListWidget *_msg_table_view;
+	QListWidget *_msg_rt_table_view;
 
 	PathDefDialog *_path_def_dialog;
 	NetworkGraph *_ngraph;

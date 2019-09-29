@@ -88,10 +88,10 @@ int Core::run_cli()
 	route = _ngraph.find_shortest_path(src, dst);
 
 	std::cout << "distance from " << src << " to " << dst << ": " <<
-		route.first << std::endl;
+		route.first.cost << std::endl;
 	std::cout << "route: ";
-	for (unsigned int id : route.second)
-		std::cout << id << " ";
+	for (auto vertex: route.second)
+		std::cout << vertex->id << " ";
 	std::cout << std::endl;
 
 	return 0;

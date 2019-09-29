@@ -9,6 +9,7 @@ class QGraphicsView;
 class QGraphicsSceneEvent;
 QT_BEGIN_NAMESPACE
 class EdgeUI;
+struct Vertex;
 
 class VertexUI : public QGraphicsItem
 {
@@ -16,8 +17,9 @@ public:
 	// set it as a new type o QGraphicsItem, thus we can _cast() it
 	enum { Type = UserType + 1 };
 
-	VertexUI(unsigned int);
+	VertexUI(struct Vertex *);
 	void add_edge(EdgeUI *);
+	Vertex * vertex(void) const;
 	unsigned int id(void) const;
 	void state(bool);
 	QList<EdgeUI *> edges() const;
@@ -32,7 +34,8 @@ protected:
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *) override;
 
 private:
-	unsigned int _id;
+	struct Vertex *_vertex;
+	//unsigned int _id;
 	bool _selected_state = false;
 	QList<EdgeUI *> _edge_list;
 

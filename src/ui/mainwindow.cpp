@@ -4,6 +4,7 @@
 #include "mainwindow.hpp"
 #include "core.hpp"
 #include "edge_ui.hpp"
+#include "protocol.hpp"
 
 MainWindow::MainWindow(Core *core, QWidget *parent)
 	: QMainWindow(parent), _ngraph(core->network_graph())
@@ -17,6 +18,7 @@ MainWindow::MainWindow(Core *core, QWidget *parent)
 	_graph_scene->setSceneRect(-200, -200, 400, 400);
 
 	_graph_view = new QGraphicsView(this);
+	_graph_view->setAlignment(Qt::AlignTop|Qt::AlignLeft);
 	_graph_view->setScene(_graph_scene);
 	_graph_view->setCacheMode(QGraphicsView::CacheBackground);
 	_graph_view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
@@ -25,15 +27,32 @@ MainWindow::MainWindow(Core *core, QWidget *parent)
 
 	setCentralWidget(_graph_view);
 
-	QDockWidget *dock = new QDockWidget(tr("Routing table"), this);
-	dock->setAllowedAreas(Qt::BottomDockWidgetArea);
-	_rtable_view = new QListWidget(dock);
+	QDockWidget *dock_rt = new QDockWidget(tr("Routing table"), this);
+	dock_rt->setAllowedAreas(Qt::BottomDockWidgetArea);
+	_rtable_view = new QListWidget(dock_rt);
 	connect(_rtable_view, &QListWidget::itemClicked, this,
 			&MainWindow::find_shortest_path_from_view);
-	dock->setWidget(_rtable_view);
-	addDockWidget(Qt::BottomDockWidgetArea, dock);
+	dock_rt->setWidget(_rtable_view);
+	dock_rt->setMaximumHeight(150);
+	addDockWidget(Qt::BottomDockWidgetArea, dock_rt);
 
-	setMinimumSize(400, 400);
+	QDockWidget *dock_msg = new QDockWidget(tr("Messages"), this);
+	dock_msg->setAllowedAreas(Qt::RightDockWidgetArea);
+	_msg_table_view = new QListWidget(dock_msg);
+	dock_msg->setWidget(_msg_table_view);
+//	dock_msg->setMaximumWidth(150);
+	addDockWidget(Qt::RightDockWidgetArea, dock_msg);
+
+	QDockWidget *dock_msg_rt = new QDockWidget(tr("Neighbor Routing table"), this);
+	dock_msg_rt->setAllowedAreas(Qt::BottomDockWidgetArea);
+	_msg_rt_table_view = new QListWidget(dock_msg_rt);
+	connect(_msg_rt_table_view, &QListWidget::itemClicked, this,
+			&MainWindow::show_msg_rt_table);
+	dock_msg_rt->setWidget(_msg_rt_table_view);
+	dock_msg_rt->setMaximumHeight(150);
+	addDockWidget(Qt::BottomDockWidgetArea, dock_msg_rt);
+
+	setMinimumSize(800, 600);
 	setWindowTitle(tr("Wireless Network Simulator"));
 }
 
@@ -50,11 +69,19 @@ void MainWindow::_clear_all()
 	_ngraph->clear_graph();
 	if (_rtable_view->count() > 0)
 		_rtable_view->clear();
+	if (_msg_table_view->count() > 0)
+		_msg_table_view->clear();
+	if (_msg_rt_table_view->count() > 0)
+		_msg_rt_table_view->clear();
 	_clean_run = true;
 }
 
 void MainWindow::new_random_graph()
 {
+	// make random seems a true rng
+	srand(static_cast<unsigned int>(time(nullptr)));
+
+	// repeat until there are no graphs disconnected within the generated one
 	do {
 		if (!_clean_run)
 			_clear_all();
@@ -157,8 +184,8 @@ void MainWindow::_draw_nodes()
 	auto edges_attr = _ngraph->graph_edges();
 	VertexUI *node1, *node2;
 	EdgeUI *edge;
-	QRandomGenerator *rand = QRandomGenerator::system();
-	QSize gview_sz = _graph_view->size();
+//	QRandomGenerator *rand = QRandomGenerator::system();
+//	QSize gview_sz = _graph_view->size();
 
 	for (auto graph_edge : edges_attr) {
 		auto vid_pair = graph_edge.second;
@@ -180,17 +207,21 @@ void MainWindow::_draw_nodes()
 			}
 		}
 
-		edge = new EdgeUI(node1, node2, graph_edge.first);
 		if (!node1_found) {
-			node1->setPos(rand->bounded(-gview_sz.width()/3, gview_sz.width()/3),
-				rand->bounded(-gview_sz.height()/3, gview_sz.height()/3));
+			//node1->setPos(rand->bounded(-gview_sz.width()/3, gview_sz.width()/3),
+			//	rand->bounded(-gview_sz.height()/3, gview_sz.height()/3));
+			node1->setPos(node1->vertex()->coord.x * _graph_scene->width()/(_ngraph->grid_dim()+5),
+						  node1->vertex()->coord.y * _graph_scene->height()/(_ngraph->grid_dim()+5));
 			_graph_scene->addItem(node1);
 		}
 		if (!node2_found) {
-			node2->setPos(rand->bounded(-gview_sz.width()/3, gview_sz.width()/3),
-				rand->bounded(-gview_sz.height()/3, gview_sz.height()/3));
+			//node2->setPos(rand->bounded(-gview_sz.width()/3, gview_sz.width()/3),
+			//	rand->bounded(-gview_sz.height()/3, gview_sz.height()/3));
+			node2->setPos(node2->vertex()->coord.x * _graph_scene->width()/(_ngraph->grid_dim()+5),
+						  node2->vertex()->coord.y * _graph_scene->height()/(_ngraph->grid_dim()+5));
 			_graph_scene->addItem(node2);
 		}
+		edge = new EdgeUI(graph_edge.first, node1, node2);
 		_graph_scene->addItem(edge);
 	}
 
@@ -228,11 +259,11 @@ void MainWindow::path_def(unsigned int src_id, unsigned int dst_id)
 	}
 
 	// actually set the state of each vertex that matches the route
-	for (auto id : route.second) {
+	for (auto vertex : route.second) {
 		for (QGraphicsItem *item : items_list) {
 			VertexUI *tmp_node = qgraphicsitem_cast<VertexUI *>(item);
 			if (tmp_node != nullptr) {
-				if (tmp_node->id() == id) {
+				if (tmp_node->id() == vertex->id) {
 					tmp_node->state(true);
 				} else if (!src_found && tmp_node->id() == src_id) {
 					// src_id is not listed in the route table, that's why we
@@ -269,15 +300,74 @@ void MainWindow::show_routing_table(unsigned int id)
 
 			route = _ngraph->find_shortest_path(id, tmp_node->id());
 			// weight == 0, no valid path to that vertex
-			if (route.first == 0)
+			if (route.first.cost == 0)
 				continue;
 
 			str = "dest: " + QString::number(tmp_node->id()) + " route: ";
-			for (auto route_id : route.second) {
-				str += QString::number(route_id) + " ";
+			for (auto route_vertices : route.second) {
+				str += QString::number(route_vertices->id) + " ";
 			}
-			str += "weight: " + QString::number(route.first);
+			str += "weight: " + QString::number(route.first.cost);
 			_rtable_view->addItem(str);
+		}
+	}
+}
+
+void MainWindow::show_msg_table(unsigned int id)
+{
+	QString str;
+	ProtoMsg proto_msg;
+
+	if (_msg_table_view->count() > 0)
+		_msg_table_view->clear();
+
+	for (QGraphicsItem *item : _graph_scene->items()) {
+		VertexUI *tmp_node = qgraphicsitem_cast<VertexUI *>(item);
+		if (tmp_node != nullptr) {
+			if (tmp_node->id() == id)
+				continue;
+
+			for (auto msg : _ngraph->vertex(tmp_node->id())->msg_table) {
+				proto_msg = msg;
+				str = "src: " + QString::number(msg.src_id) + " msg: ";
+				if (msg.payload.msg == 0)
+					str += "HELLO ";
+				else
+					str += "UPDATE ";
+
+				if (msg.dst_id == BROADCAST_ID)
+					str += "dst: broad";
+				else
+					str += "dst: " + QString::number(msg.dst_id);
+				_msg_table_view->addItem(str);
+			}
+		}
+	}
+}
+
+void MainWindow::show_msg_rt_table(QListWidgetItem *item)
+{
+	QStringList item_text = item->text().split(" ");
+	unsigned int vertex_id = item_text.at(1).toUInt();
+	QString str;
+
+	if (_msg_rt_table_view->count() > 0)
+		_msg_rt_table_view->clear();
+
+	str = "not implemented yet";
+	_msg_rt_table_view->addItem(str);
+
+	for (QGraphicsItem *item : _graph_scene->items()) {
+		VertexUI *tmp_node = qgraphicsitem_cast<VertexUI *>(item);
+		if (tmp_node != nullptr) {
+			if (tmp_node->id() != vertex_id)
+				continue;
+
+			for (auto msg : tmp_node->vertex()->msg_table) {
+				for (auto proto_route : msg.payload.routing_table) {
+					// TDB
+				}
+			}
 		}
 	}
 }
